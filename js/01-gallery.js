@@ -3,43 +3,49 @@ import { galleryItems } from './gallery-items.js';
 
 console.log(galleryItems);
 
-const galleryRef = document.querySelector('.gallery')
-const itemsMarkup = galleryItems.map(element => {
-	const galleryItem = document.createElement('div')
-	galleryItem.className = 'gallery__item'
-	const galleryLink = document.createElement('a')
-	galleryLink.className = 'gallery__link'
-	galleryLink.href = element.original
-	const galleryImage = document.createElement('img')
-    galleryImage.className = 'gallery__image'
-    galleryImage.src = element.preview;
-    galleryImage.setAttribute('data-source', element.original)
-    galleryImage.alt = element.description;
+const galleryRef = document.querySelector(".gallery");
+const galleryCardMarkup = createGalleryCards(galleryItems);
 
-	galleryItem.append(galleryLink)
-	galleryLink.append(galleryImage)
-	return galleryItem
-})
+function createGalleryCards(images) {
+    return images.map(image => 
+        `<div class = "gallery__item">
+            <a class = "gallery__link" href = "${image.original}" onclick = "return false">
+            <img
+                class = "gallery__image"
+                src = "${image.preview}"
+                data-source = "${image.original}"
+                alt = "${image.description}"
+            />
+            </a>
+            </div>
+        `).join('');
+}
 
-galleryRef.append(...itemsMarkup)
+galleryRef.insertAdjacentHTML('afterbegin', galleryCardMarkup);
+galleryRef.addEventListener('click', handleModalOpen);
 
-galleryRef.addEventListener('click', event => {
+function handleModalOpen(event) {
     event.preventDefault();
-    if (event.target.nodeName !== 'IMG') {
-		return
-	}
-
-    const selectedImage = event.target.getAttribute('data-source')
-
-    const instance = basicLightbox.create(`
-    <img src="${selectedImage}" width="800" height="600">
-`)
-
-    instance.show()
     
-    galleryRef.addEventListener('keydown', event => {
-		if (event.key === 'Escape') {
-			instance.close()
-		}
-	})
-})
+   const { nodeName, dataset } = event.target;
+   nodeName === 'IMG' && showModal(dataset.source);
+};
+
+function showModal(src) {
+	const handleModalClose = ({ code }) => {
+		code === "Escape" && modal.close();
+	};
+	
+	const modalOptions = {
+		onShow: () => {
+			document.addEventListener("keydown", handleModalClose);
+		},
+		onClose: () => {
+			document.removeEventListener("keydown", handleModalClose);
+		},
+	};
+
+	const modal = basicLightbox.create(`<img src="${src}" width="800" height="600">`, modalOptions);
+
+	modal.show();
+}
