@@ -3,22 +3,22 @@ import { galleryItems } from './gallery-items.js';
 
 console.log(galleryItems);
 
-const galleryRef = document.querySelector('.gallery')
-const itemsMarkup = galleryItems.map(element => {
-	const galleryLink = document.createElement('a')
-	galleryLink.className = 'gallery__link'
-	galleryLink.href = element.original
-	const galleryImage = document.createElement('img')
-	galleryImage.className = 'gallery__image'
-	galleryImage.src = element.preview
-	galleryImage.setAttribute('title', element.description)
-	galleryImage.alt = element.description
+const galleryRef = document.querySelector('.gallery');
 
-	galleryLink.append(galleryImage)
-	return galleryLink
-})
-galleryRef.append(...itemsMarkup)
+const galleryCardMarkup = galleryItems
+.map(({preview,original,description}) => 
+`<li class = "gallery__item">
+<a class = "gallery__item" href = "${original}">
+<img class = "gallery__image"
+  src = "${preview}"
+  alt = "${description}"/>
+</a></li>`).join("");
 
-new SimpleLightbox('.gallery a', {
-	captionDelay: 250
-})
+galleryRef.insertAdjacentHTML('afterbegin', galleryCardMarkup);
+
+new SimpleLightbox('.gallery a', { 
+    captionsData: 'alt',
+    captionDelay: 250,
+});
+
+console.log(galleryItems);
